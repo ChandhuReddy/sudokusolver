@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            table {
+                margin:1em auto;
+            }
+            td {
+                height:30px;
+                width:30px;
+                border:1px solid;
+                text-align:center;
+            }
+            input  {
+                height:30px;
+                width:30px;
+                border:none;
+                text-align:center;
+            }
+            td:first-child {
+                border-left:solid;
+            }
+            td:nth-child(3n) {
+                border-right:solid ;
+            }
+            tr:first-child {
+                border-top:solid;
+            }
+            tr:nth-child(3n) td {
+                border-bottom:solid ;
+            }
+        </style>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div style="text-align: center; margin-top: 70px;">
+            <h1>Sudoku</h1><br>
+            <button class="btn btn-info" onclick="return generate()">Generate New</button>
+            <button class="btn btn-info" onclick="return solveSudoku()">Solve</button>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-3">
+
+            </div>
+            <div class="col-sm-3" id="div_gen">
+                <div style="text-align: center; " id="gen_table">
+
+                </div>
+            </div>
+            <div class="col-sm-3" id="div_solve">
+                <div style="text-align: center; " id="solve_table">
+
+                </div>
+            </div>
+            <div class="col-sm-3">
+
+            </div>
+          </div>
+       
+        <script>
+            var puzzle=[
+                [
+                    ["0","0","0","2","6","0","7","0","1"],
+                    ["6","8","0","0","7","0","0","9","0"],
+                    ["1","9","0","0","0","4","5","0","0"],
+                    ["8","2","0","1","0","0","0","4","0"],
+                    ["0","0","4","6","0","2","9","0","0"],
+                    ["0","5","0","0","0","3","0","2","8"],
+                    ["0","0","9","3","0","0","0","7","4"],
+                    ["0","4","0","0","5","0","0","3","6"],
+                    ["7","0","3","0","1","8","0","0","0"],
+                ],
+                [
+                    ["3","0","6","5","0","8","4","0","0"],
+                    ["5","2","0","0","0","0","0","0","0"],
+                    ["0","8","7","0","0","0","0","3","1"],
+                    ["0","0","3","0","1","0","0","8","0"],
+                    ["9","0","0","8","6","3","0","0","5"],
+                    ["0","5","0","0","9","0","6","0","0"],
+                    ["1","3","0","0","0","0","2","5","0"],
+                    ["0","0","0","0","0","0","0","7","4"],
+                    ["0","0","5","2","0","6","3","0","0"],
+                ],
+                [
+                    ["0","0","3","0","4","2","0","9","0"],
+                    ["0","9","0","0","6","0","5","0","0"],
+                    ["5","0","0","0","0","0","0","1","0"],
+                    ["0","0","1","7","0","0","2","8","5"],
+                    ["0","0","8","0","0","0","1","0","0"],
+                    ["3","2","9","0","0","8","7","0","0"],
+                    ["0","3","0","0","0","0","0","0","1"],
+                    ["0","0","5","0","9","0","0","2","0"],
+                    ["0","8","0","2","1","0","6","0","0"],
+                ],
+                [
+                    ["0","6","0","0","0","0","0","1","0"],
+                    ["0","0","0","6","5","1","0","0","0"],
+                    ["1","0","7","0","0","0","6","0","2"],
+                    ["6","2","0","3","0","5","0","9","4"],
+                    ["0","0","3","0","0","0","2","0","0"],
+                    ["4","8","0","9","0","7","0","3","6"],
+                    ["9","0","6","0","0","0","4","0","8"],
+                    ["0","0","0","7","9","4","0","0","0"],
+                    ["0","5","0","0","0","0","0","7","0"],
+                ],
+            ];
+
+            var item = [];
+            
+            function dispTable(item,type)
+            {
+                var table = '<table>';
+                for(i=0;i<9;i++)
+                {
+                    table += '<tr>';
+                    for(j=0;j<9;j++)
+                    {
+                        table += '<td>';
+                        if(item[i][j]>0)
+                        {
+                            table += '<input type="text" maxlength="1" value='+item[i][j]+'>';
+                            table += '</td>'
+                        }
+                        else
+                        {
+                            table += '<input type="text" maxlength="1" value="">';
+                            table += '</td>'
+                        }
+                        
+                    }
+                    table += '</tr>';
+                }
+                table += '</table>';
+                if(type === "generate")
+                {
+                    document.getElementById("gen_table").innerHTML = table;
+                    document.getElementById("div_gen").style.border = "1px solid green";
+                    document.getElementById("div_solve").style.display = "none";
+                }
+                else if(type === "solve")
+                {
+                    document.getElementById("solve_table").innerHTML = table;
+                    document.getElementById("div_solve").style.display = "block";
+                    document.getElementById("div_solve").style.border = "1px solid green";
+                }
+                    
+            }
+
+
+            function generate(){
+                item = puzzle[Math.floor(Math.random() * puzzle.length)];
+                dispTable(item,"generate");
+            }
+
+
+
+        
+            function solveSudoku()
+            {
+                //const data = item;
+                //const data = [...item];
+                //const data = Array.from(item);
+                //const data = item.slice();
+                const data = JSON.parse(JSON.stringify(item));
+                sudokuSolver(data);
+
+
+                //function to check 3*3 matrix
+                function isValid(input, row, col, k) 
+                {
+                    for (let i = 0; i < 9; i++) 
+                    {
+                        const m = 3 * Math.floor(row / 3) + Math.floor(i / 3);
+                        const n = 3 * Math.floor(col / 3) + i % 3;
+                        if (input[row][i] == k || input[i][col] == k || input[m][n] == k) 
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+                
+                function sudokuSolver(data) 
+                {
+                    //loop for row
+                    for (let i = 0; i < 9; i++) 
+                    {
+                        //loop for column
+                        for (let j = 0; j < 9; j++)
+                        {
+                            //condition if cell contains '0'
+                            if (data[i][j] == '0') 
+                            {
+                                //loop for substituting the numbers
+                                for (let k = 1; k <= 9; k++) 
+                                {
+                                    if (isValid(data, i, j, k)) 
+                                    {
+                                        data[i][j] = `${k}`;
+                                        if (sudokuSolver(data)) 
+                                        {
+                                            return true;
+                                        } 
+                                        else 
+                                        {
+                                            data[i][j] = '0';
+                                        }
+                                    }
+                                }
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+                console.log(data);
+                dispTable(data,"solve");
+            }
+            
+        </script>
+    </body>
+</html>
